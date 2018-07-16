@@ -6,6 +6,7 @@ module Text.Slate.Types where
 import           Control.Monad    ((>=>))
 import           Data.Aeson       hiding (Value)
 import           Data.Aeson.Types hiding (Value)
+import qualified Data.Text        as T
 import qualified Data.Text.Lazy   as TL
 import           Text.Slate.Print
 
@@ -36,7 +37,7 @@ type Data = Maybe Object
 data Mark = Bold
           | Italic
           | Underline
-          | OtherMark TL.Text
+          | OtherMark T.Text
           deriving Show
 
 --------------------------------------------------------------------
@@ -81,7 +82,7 @@ instance FromJSON Mark where
   parseJSON (String "bold")      = return Bold
   parseJSON (String "italic")    = return Italic
   parseJSON (String "underline") = return Underline
-  parseJSON (String s)           = return (OtherMark $ TL.fromStrict s)
+  parseJSON (String s)           = return (OtherMark s)
   parseJSON v                    = typeMismatch "Mark" v
 
 instance Print Value where
@@ -92,3 +93,38 @@ instance Print Node where
   printPlain (Block _ _ _ ns) = printPlain ns
   printPlain (Text ns)        = printPlain ns
   printPlain (Leaf _ ns _)    = printPlain ns
+
+
+--------------------------------------------------------------------
+-- JSON Encoding                                                  --
+--------------------------------------------------------------------
+
+instance ToJSON Value where
+  toJSON (Value n) = object [ "object" .= String "value"
+                            , "document" .= n
+                            ]
+
+instance ToJSON Node where
+  toJSON (Document d ns) = object [ "object" .= String "document"
+                                  , "data" .= d
+                                  , "nodes" .= ns
+                                  ]
+  toJSON (Block ty void d ns) = object [ "object" .= String "block"
+                                       , "type" .= ty
+                                       , "isVoid" .= void
+                                       , "data" .= d
+                                       , "nodes" .= ns
+                                       ]
+  toJSON (Text ns) = object [ "object" .= String "text"
+                            , "leaves" .= ns
+                            ]
+  toJSON (Leaf ms txt _) = object [ "object" .= String "leaf"
+                                  , "marks" .= ms
+                                  , "text" .= txt
+                                  ]
+
+instance ToJSON Mark where
+  toJSON Bold          = String "bold"
+  toJSON Italic        = String "italic"
+  toJSON Underline     = String "underline"
+  toJSON (OtherMark s) = String s
