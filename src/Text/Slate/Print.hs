@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedStrings    #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module Text.Slate.Print (
-  -- * Printing class
+  -- * Printing class for generating textual representations
     Print, printPlain, printHtml
   ) where
 

@@ -1,7 +1,16 @@
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE OverloadedStrings    #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-module Text.Slate.Types where
+module Text.Slate.Types
+  (
+    -- * Slate editor model core types
+    Value(..)
+  , Node
+  , NodeM(Document, Block, Text, Leaf)
+  , Mark(..)
+  , Data
+  , NodeType
+  ) where
 
 import           Control.Monad    ((>=>))
 import           Data.Aeson       hiding (Value)
