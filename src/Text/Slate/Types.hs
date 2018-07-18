@@ -5,8 +5,7 @@ module Text.Slate.Types
   (
     -- * Slate editor model core types
     Value(..)
-  , Node
-  , NodeM(Document, Block, Text, Leaf)
+  , Node(Document, Block, Text, Leaf)
   , Mark(..)
   , Data
   , NodeType
@@ -20,20 +19,17 @@ import qualified Data.Text.Lazy   as TL
 import           Text.Slate.Print
 
 
--- | Slate Node monad type.
-data NodeM a
+-- | Slate Node type.
+data Node
   -- | Toplevel Document node
-  = Document Data [NodeM a]
+  = Document Data [Node]
   -- | Block nodes
-  | Block NodeType Bool Data [NodeM a]
+  | Block NodeType Bool Data [Node]
   -- | Text nodes
-  | Text [NodeM a]
+  | Text [Node]
   -- | Leaf nodes with plain text and marks
-  | Leaf [Mark] TL.Text a
+  | Leaf [Mark] TL.Text
   deriving Show
-
--- | Simplification of the 'NodeM' datatype.
-type Node = NodeM ()
 
 -- | Main Slate Value type.
 newtype Value = Value Node deriving Show
@@ -82,7 +78,6 @@ instance FromJSON Node where
           "leaf" ->
             Leaf <$> (obj .: "marks")
                  <*> (obj .: "text")
-                 <*> return ()
 
           _ ->
             typeMismatch "Node" v
@@ -101,7 +96,7 @@ instance Print Node where
   printPlain (Document _ ns)  = TL.intercalate "\n\n" . fmap printPlain $ ns
   printPlain (Block _ _ _ ns) = printPlain ns
   printPlain (Text ns)        = printPlain ns
-  printPlain (Leaf _ ns _)    = printPlain ns
+  printPlain (Leaf _ ns)      = printPlain ns
 
 
 --------------------------------------------------------------------
@@ -127,7 +122,7 @@ instance ToJSON Node where
   toJSON (Text ns) = object [ "object" .= String "text"
                             , "leaves" .= ns
                             ]
-  toJSON (Leaf ms txt _) = object [ "object" .= String "leaf"
+  toJSON (Leaf ms txt) = object [ "object" .= String "leaf"
                                   , "marks" .= ms
                                   , "text" .= txt
                                   ]

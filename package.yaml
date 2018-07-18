@@ -24,7 +24,9 @@ dependencies:
 - aeson
 - blaze-html
 - bytestring
+- free
 - text
+- transformers
 
 library:
   source-dirs: src

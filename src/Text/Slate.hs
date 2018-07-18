@@ -11,6 +11,7 @@ module Text.Slate (
 import           Data.Aeson           (eitherDecode, encode)
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text.Lazy       as TL
+import           Text.Slate.Builder   (block, makeValue, plain)
 import           Text.Slate.Print
 import           Text.Slate.Types
 
@@ -25,7 +26,6 @@ plainDeserialize :: Value -> TL.Text
 plainDeserialize = printPlain
 
 plainSerialize :: TL.Text -> Value
-plainSerialize txt = Value node
-  where
-    node =
-      Document Nothing [Block "paragraph" False Nothing [Text [Leaf [] txt ()]]]
+plainSerialize txt = makeValue $ do
+  block "paragraph"
+  plain txt
